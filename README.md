@@ -1,37 +1,85 @@
-## Welcome to GitHub Pages
+directive @key(fields: String!) on OBJECT | INTERFACE
 
-You can use the [editor on GitHub](https://github.com/Blakay/blakay.github.io/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
+directive @extends on OBJECT | INTERFACE
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+directive @external on OBJECT | FIELD_DEFINITION
 
-### Markdown
+directive @requires(fields: String!) on FIELD_DEFINITION
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+directive @provides(fields: String!) on FIELD_DEFINITION
 
-```markdown
-Syntax highlighted code block
+type Country {
+  code: ID!
+  name: String!
+  native: String!
+  phone: String!
+  continent: Continent!
+  capital: String
+  currency: String
+  languages: [Language!]!
+  emoji: String!
+  emojiU: String!
+  states: [State!]!
+}
 
-# Header 1
-## Header 2
-### Header 3
+type Continent {
+  code: ID!
+  name: String!
+  countries: [Country!]!
+}
 
-- Bulleted
-- List
+type Language {
+  code: ID!
+  name: String
+  native: String
+  rtl: Boolean!
+}
 
-1. Numbered
-2. List
+type State {
+  code: String
+  name: String!
+  country: Country!
+}
 
-**Bold** and _Italic_ and `Code` text
+input StringQueryOperatorInput {
+  eq: String
+  ne: String
+  in: [String]
+  nin: [String]
+  regex: String
+  glob: String
+}
 
-[Link](url) and ![Image](src)
-```
+input CountryFilterInput {
+  code: StringQueryOperatorInput
+  currency: StringQueryOperatorInput
+  continent: StringQueryOperatorInput
+}
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+input ContinentFilterInput {
+  code: StringQueryOperatorInput
+}
 
-### Jekyll Themes
+input LanguageFilterInput {
+  code: StringQueryOperatorInput
+}
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Blakay/blakay.github.io/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+  countries(filter: CountryFilterInput): [Country!]!
+  country(code: ID!): Country
+  continents(filter: ContinentFilterInput): [Continent!]!
+  continent(code: ID!): Continent
+  languages(filter: LanguageFilterInput): [Language!]!
+  language(code: ID!): Language
+}
 
-### Support or Contact
+union _Entity = Country | Continent | Language
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+scalar _Any
+
+type _Service {
+  # The sdl representing the federated service capabilities. Includes federation directives, removes federation types, and includes rest of full schema after schema directives have been applied
+  sdl: String
+}
